@@ -1,0 +1,33 @@
+backgroud.md
+  62d75dc8e4254ef2 1-291
+kaohe/app/services/coverage_service.py
+  62d75dc8e4254ef2 115-182
+.gitignore
+  62d75dc8e4254ef2 1-63
+front/src/api/coverage.js
+  62d75dc8e4254ef2 5
+front/src/views/coverage/CoveragePage.vue
+  62d75dc8e4254ef2 49,65-67,74-93,104-106,120,129-130,138-140,149,156,166-170,173,222-238,241,249,252,268-271,273
+kaohe/app/api/coverage.py
+  62d75dc8e4254ef2 42-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.12",
+  "base_commit_sha": "ffbbcf1ab160dd173e6d109ecc73b6da20263c82",
+  "prompts": {
+    "62d75dc8e4254ef2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8d831098-ab3c-42b2-86e8-ad668c632285",
+        "model": "default"
+      },
+      "human_author": "jumprn <2451744398@qq.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 508,
+      "overriden_lines": 0
+    }
+  }
+}
