@@ -39,6 +39,25 @@ def get_trend():
     return success(data)
 
 
+@coverage_bp.route('/by-member', methods=['GET'])
+def get_by_member():
+    """按成员聚合覆盖率（可按项目、时间筛选，基于 commit 时间）"""
+    project_id = request.args.get('project_id', type=int)
+    start_date = _parse_date(request.args.get('start_date'))
+    end_date = _parse_date(request.args.get('end_date'))
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+
+    result = coverage_service.query_member_coverage_summary(
+        project_id=project_id,
+        start_date=start_date,
+        end_date=end_date,
+        page=page,
+        per_page=per_page,
+    )
+    return success(result)
+
+
 def _parse_date(date_str: str | None) -> date | None:
     if not date_str:
         return None

@@ -46,7 +46,7 @@
     <a-card>
       <template #title>
         <div class="table-header">
-          <span>覆盖率明细</span>
+          <span>覆盖率</span>
           <a-space>
             <a-dropdown>
               <template #overlay>
@@ -62,24 +62,48 @@
           </a-space>
         </div>
       </template>
-      <a-table
-        :data-source="tableData"
-        :columns="columns"
-        :loading="loading"
-        :pagination="pagination"
-        row-key="id"
-        @change="handleTableChange"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'coverage_rate'">
-            <a-progress
-              :percent="record.coverage_rate"
-              :size="'small'"
-              :stroke-color="record.coverage_rate > 50 ? '#52c41a' : '#faad14'"
-            />
-          </template>
-        </template>
-      </a-table>
+      <a-tabs v-model:active-key="activeTab">
+        <a-tab-pane key="detail" tab="覆盖率明细">
+          <a-table
+            :data-source="tableData"
+            :columns="columns"
+            :loading="loading"
+            :pagination="pagination"
+            row-key="id"
+            @change="handleTableChange"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'coverage_rate'">
+                <a-progress
+                  :percent="record.coverage_rate"
+                  :size="'small'"
+                  :stroke-color="record.coverage_rate > 50 ? '#52c41a' : '#faad14'"
+                />
+              </template>
+            </template>
+          </a-table>
+        </a-tab-pane>
+        <a-tab-pane key="member" tab="按成员聚合">
+          <a-table
+            :data-source="memberTableData"
+            :columns="memberColumns"
+            :loading="memberLoading"
+            :pagination="memberPagination"
+            row-key="rowKey"
+            @change="handleMemberTableChange"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'coverage_rate'">
+                <a-progress
+                  :percent="record.coverage_rate"
+                  :size="'small'"
+                  :stroke-color="record.coverage_rate > 50 ? '#52c41a' : '#faad14'"
+                />
+              </template>
+            </template>
+          </a-table>
+        </a-tab-pane>
+      </a-tabs>
     </a-card>
   </div>
 </template>
@@ -93,7 +117,7 @@ import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from
 import VChart from 'vue-echarts'
 import { DownloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { getCoverage, getCoverageTrend } from '@/api/coverage'
+import { getCoverage, getCoverageTrend, getCoverageByMember } from '@/api/coverage'
 import { useAppStore } from '@/stores/app'
 
 use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent])
@@ -102,6 +126,8 @@ const appStore = useAppStore()
 const projects = computed(() => appStore.projects)
 const members = computed(() => appStore.members)
 
+const activeTab = ref('detail')
+
 const dateRange = ref(null)
 const filterProjectId = ref(null)
 const filterMemberId = ref(null)
@@ -109,7 +135,18 @@ const loading = ref(false)
 const tableData = ref([])
 const trendData = ref([])
 
+const memberLoading = ref(false)
+const memberTableData = ref([])
+
 const pagination = reactive({
+  current: 1,
+  pageSize: 20,
+  total: 0,
+  showSizeChanger: true,
+  showTotal: (total) => `共 ${total} 条`,
+})
+
+const memberPagination = reactive({
   current: 1,
   pageSize: 20,
   total: 0,
@@ -123,6 +160,14 @@ const columns = [
   { title: '项目', dataIndex: 'project_name', key: 'project_name' },
   { title: 'AI代码行数', dataIndex: 'ai_lines', key: 'ai_lines', sorter: true },
   { title: '总代码行数', dataIndex: 'total_lines', key: 'total_lines', sorter: true },
+  { title: '覆盖率', key: 'coverage_rate', width: 200 },
+]
+
+const memberColumns = [
+  { title: '成员', dataIndex: 'member_name', key: 'member_name' },
+  { title: '项目', dataIndex: 'project_name', key: 'project_name' },
+  { title: 'AI代码行数', dataIndex: 'ai_lines', key: 'ai_lines' },
+  { title: '总代码行数', dataIndex: 'total_lines', key: 'total_lines' },
   { title: '覆盖率', key: 'coverage_rate', width: 200 },
 ]
 
@@ -174,6 +219,26 @@ const fetchData = async () => {
   }
 }
 
+const fetchMemberData = async () => {
+  memberLoading.value = true
+  try {
+    const params = {
+      ...getFilterParams(),
+      page: memberPagination.current,
+      per_page: memberPagination.pageSize,
+    }
+    const res = await getCoverageByMember(params)
+    const items = res.data.items || []
+    memberTableData.value = items.map((item, index) => ({
+      ...item,
+      rowKey: `${item.member_id || 'm'}-${item.project_id || 'p'}-${index}`,
+    }))
+    memberPagination.total = res.data.total || 0
+  } finally {
+    memberLoading.value = false
+  }
+}
+
 const fetchTrend = async () => {
   const res = await getCoverageTrend(getFilterParams())
   trendData.value = res.data || []
@@ -181,8 +246,10 @@ const fetchTrend = async () => {
 
 const handleSearch = () => {
   pagination.current = 1
+  memberPagination.current = 1
   fetchData()
   fetchTrend()
+  fetchMemberData()
 }
 
 const handleReset = () => {
@@ -196,6 +263,12 @@ const handleTableChange = (pag) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
   fetchData()
+}
+
+const handleMemberTableChange = (pag) => {
+  memberPagination.current = pag.current
+  memberPagination.pageSize = pag.pageSize
+  fetchMemberData()
 }
 
 const handleExport = ({ key }) => {
