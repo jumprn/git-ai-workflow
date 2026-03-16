@@ -1,0 +1,66 @@
+---
+description: Flask API 路由与接口开发规范
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# API 设计规范
+
+- 遵循 RESTful 风格，URL 使用名词复数：`/api/users`, `/api/exams`
+- HTTP 方法语义：GET 查询、POST 创建、PUT 全量更新、PATCH 部分更新、DELETE 删除
+- 所有 API 路由以 `/api` 为前缀，通过蓝图注册
+
+# 蓝图注册
+
+```python
+# app/api/users.py
+from flask import Blueprint
+
+users_bp = Blueprint('users', __name__, url_prefix='/api/users')
+
+@users_bp.route('', methods=['GET'])
+def get_users():
+    ...
+```
+
+```python
+# app/__init__.py
+def create_app():
+    app = Flask(__name__)
+    from app.api.users import users_bp
+    app.register_blueprint(users_bp)
+    return app
+```
+
+# 统一响应格式
+
+所有接口返回统一 JSON 结构：
+
+```python
+# 成功
+{"code": 200, "message": "success", "data": {...}}
+
+# 失败
+{"code": 400, "message": "参数错误", "data": null}
+```
+
+封装为工具函数：
+
+```python
+def success(data=None, message="success"):
+    return jsonify({"code": 200, "message": message, "data": data})
+
+def fail(code=400, message="error"):
+    return jsonify({"code": code, "message": message, "data": None}), code
+```
+
+# 参数校验
+
+- 使用 Marshmallow Schema 做参数校验和序列化
+- 禁止在路由函数中直接写大量校验逻辑
+
+# 路由函数规范
+
+- 路由函数只做：接收参数 → 调用 service → 返回响应
+- 不在路由函数中直接操作数据库
+- 每个蓝图文件不超过 300 行，过长则拆分

@@ -1,0 +1,70 @@
+---
+description: HTTP 请求与接口调用规范
+globs: "**/*.js"
+alwaysApply: false
+---
+
+# Axios 封装
+
+在 `src/utils/request.js` 中统一封装 Axios 实例：
+
+```javascript
+import axios from 'axios'
+import { message } from 'ant-design-vue'
+import router from '@/router'
+
+const request = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 15000
+})
+
+request.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+request.interceptors.response.use(
+  response => {
+    const { code, message: msg, data } = response.data
+    if (code === 200) return response.data
+    message.error(msg || '请求失败')
+    return Promise.reject(new Error(msg))
+  },
+  error => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      router.push('/login')
+    }
+    message.error(error.message || '网络异常')
+    return Promise.reject(error)
+  }
+)
+
+export default request
+```
+
+# API 模块组织
+
+按业务模块拆分，每个文件对应一个后端资源：
+
+```javascript
+// src/api/user.js
+import request from '@/utils/request'
+
+export const getUserList = (params) => request.get('/api/users', { params })
+export const getUserById = (id) => request.get(`/api/users/${id}`)
+export const createUser = (data) => request.post('/api/users', data)
+export const updateUser = (id, data) => request.put(`/api/users/${id}`, data)
+export const deleteUser = (id) => request.delete(`/api/users/${id}`)
+```
+
+# 规范要点
+
+- 所有请求通过封装后的 `request` 实例发起，禁止直接使用 `axios`
+- 接口函数命名：`get/create/update/delete` + 资源名
+- 参数通过函数参数传入，禁止在 API 函数中访问 store 或 DOM
+- 后端基础 URL 通过 `VITE_API_BASE_URL` 环境变量配置
+- Loading 状态在组件层管理，不在 API 层处理

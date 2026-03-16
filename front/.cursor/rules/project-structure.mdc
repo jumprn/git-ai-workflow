@@ -1,0 +1,58 @@
+---
+description: Vue 3 前端项目结构与通用开发规范
+alwaysApply: true
+---
+
+# 项目结构
+
+```
+front/
+├── public/                  # 静态资源
+├── src/
+│   ├── api/                 # 接口请求模块（按业务拆分）
+│   ├── assets/              # 图片、字体等静态资源
+│   ├── components/          # 公共/通用组件
+│   ├── composables/         # 组合式函数（hooks）
+│   ├── layouts/             # 布局组件
+│   ├── router/              # 路由配置
+│   │   └── index.js
+│   ├── stores/              # Pinia 状态管理
+│   ├── styles/              # 全局样式
+│   ├── utils/               # 工具函数
+│   ├── views/               # 页面级组件（按模块建子目录）
+│   ├── App.vue
+│   └── main.js
+├── .env                     # 环境变量
+├── .env.development
+├── .env.production
+├── index.html
+├── vite.config.js
+├── jsconfig.json
+└── package.json
+```
+
+# 通用规范
+
+- 构建工具：Vite
+- UI 组件库：Ant Design Vue，按需引入
+- 状态管理：Pinia
+- 路由：Vue Router 4
+- HTTP 请求：Axios
+- 使用 Composition API + `<script setup>` 语法
+- 环境变量以 `VITE_` 前缀命名，禁止硬编码后端地址
+
+# 命名规范
+
+- 文件名：组件用 `PascalCase.vue`，其他 JS 文件用 `camelCase.js`
+- 组件名：`PascalCase`，与文件名一致
+- 变量/函数：`camelCase`
+- 常量：`UPPER_SNAKE_CASE`
+- CSS class：`kebab-case`
+- 路由 path：`kebab-case`，如 `/user-list`
+- 目录名：`kebab-case` 或 `camelCase`
+
+# 依赖管理
+
+- 使用 npm 或 pnpm 管理依赖
+- `package.json` 中锁定主版本号
+- 核心依赖：vue, vue-router, pinia, axios, ant-design-vue, dayjs

@@ -1,0 +1,45 @@
+---
+description: 前端代码风格与质量规范
+globs: "**/*.{js,vue}"
+alwaysApply: false
+---
+
+# 代码风格
+
+- 缩进：2 个空格
+- 字符串：单引号
+- 语句末尾：不加分号（与 Vite 默认风格一致）
+- 单行不超过 120 个字符
+- 使用 ES6+ 语法：`const/let`、箭头函数、解构赋值、模板字符串、可选链 `?.`
+
+# 导入顺序
+
+```javascript
+// 1. Vue 核心
+import { ref, computed, onMounted } from 'vue'
+// 2. 第三方库
+import { message } from 'ant-design-vue'
+import dayjs from 'dayjs'
+// 3. 本地模块
+import { useUserStore } from '@/stores/user'
+import { getUserList } from '@/api/user'
+// 4. 组件
+import UserCard from './components/UserCard.vue'
+```
+
+# 样式规范
+
+- 组件样式使用 `<style scoped>`，禁止无 scoped 的组件样式
+- 全局样式放在 `src/styles/` 目录
+- 使用 CSS 变量或 Ant Design Vue 的主题 token 做主题定制
+- 避免内联样式，除非是动态计算值
+- 使用 flex/grid 布局，避免浮动布局
+
+# 质量规范
+
+- 避免魔法数字和硬编码字符串，提取为常量
+- 异步操作必须有错误处理（try/catch 或 .catch）
+- 列表渲染必须指定唯一 `key`
+- `v-if` 和 `v-for` 不在同一元素上使用
+- 及时清理定时器、事件监听（在 `onUnmounted` 中清理）
+- 图片资源做懒加载和尺寸优化

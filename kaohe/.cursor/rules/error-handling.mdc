@@ -1,0 +1,50 @@
+---
+description: 异常处理与日志规范
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# 全局异常处理
+
+在 app 工厂函数中注册全局错误处理器：
+
+```python
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify(code=400, message=str(e), data=None), 400
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify(code=404, message="资源不存在", data=None), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    app.logger.error(f"Internal error: {e}", exc_info=True)
+    return jsonify(code=500, message="服务器内部错误", data=None), 500
+```
+
+# 自定义业务异常
+
+```python
+class BizError(Exception):
+    def __init__(self, message="业务错误", code=400):
+        self.message = message
+        self.code = code
+
+@app.errorhandler(BizError)
+def handle_biz_error(e):
+    return jsonify(code=e.code, message=e.message, data=None), e.code
+```
+
+# 异常使用规范
+
+- 业务校验失败抛出 `BizError`，由全局处理器统一捕获
+- 禁止裸 `except:`，必须捕获具体异常类型
+- 捕获异常后必须记录日志或重新抛出，禁止静默吞掉异常
+
+# 日志规范
+
+- 使用 `app.logger` 或 Python 标准 `logging` 模块
+- 日志级别：DEBUG（开发调试）、INFO（关键业务流程）、WARNING（非预期但可恢复）、ERROR（异常）
+- 生产环境日志输出到文件，配置日志轮转
+- 日志中禁止打印密码、token 等敏感信息

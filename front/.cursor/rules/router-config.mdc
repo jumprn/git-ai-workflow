@@ -1,0 +1,63 @@
+---
+description: Vue Router 路由配置规范
+globs: "**/router/**/*.js"
+alwaysApply: false
+---
+
+# 路由配置
+
+```javascript
+// src/router/index.js
+import { createRouter, createWebHistory } from 'vue-router'
+
+const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/LoginPage.vue'),
+    meta: { title: '登录', requiresAuth: false }
+  },
+  {
+    path: '/',
+    component: () => import('@/layouts/MainLayout.vue'),
+    redirect: '/dashboard',
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/DashboardPage.vue'),
+        meta: { title: '首页' }
+      }
+    ]
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+```
+
+# 路由守卫
+
+```javascript
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.meta.requiresAuth !== false && !token) {
+    next({ path: '/login', query: { redirect: to.fullPath } })
+  } else {
+    document.title = to.meta.title || '考核系统'
+    next()
+  }
+})
+```
+
+# 规范要点
+
+- 所有路由使用懒加载：`() => import(...)`
+- 路由 `meta` 中标注 `title`（页面标题）和 `requiresAuth`（是否需要登录）
+- path 使用 `kebab-case`，name 使用 `PascalCase`
+- 嵌套路由配合 Layout 组件使用
+- 路由按模块拆分，主文件中聚合，避免单文件过长
+- 404 页面放在路由数组末尾：`{ path: '/:pathMatch(.*)*', name: 'NotFound', ... }`

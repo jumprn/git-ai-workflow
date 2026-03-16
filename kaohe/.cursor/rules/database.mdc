@@ -1,0 +1,51 @@
+---
+description: SQLAlchemy 模型与 MySQL 数据库开发规范
+globs: "**/models/**/*.py"
+alwaysApply: false
+---
+
+# 数据库连接
+
+- 使用 Flask-SQLAlchemy + PyMySQL 连接 MySQL
+- 连接串格式：`mysql+pymysql://user:password@host:port/dbname?charset=utf8mb4`
+- 连接串放在环境变量中，通过 config 引用
+
+# Model 规范
+
+```python
+from app.extensions import db
+from datetime import datetime
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(64), unique=True, nullable=False, comment='用户名')
+    created_at = db.Column(db.DateTime, default=datetime.now, comment='创建时间')
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, comment='更新时间')
+    is_deleted = db.Column(db.Boolean, default=False, comment='软删除标记')
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+```
+
+# 模型规范要点
+
+- 每个模型必须显式指定 `__tablename__`
+- 所有表包含 `id`, `created_at`, `updated_at` 字段
+- 使用软删除（`is_deleted`），避免物理删除
+- 字段加 `comment` 说明用途
+- 字符串字段使用 `utf8mb4` 编码以支持中文和 emoji
+- 关联关系使用 `db.relationship` + `db.ForeignKey`，明确 `lazy` 策略
+
+# 数据库迁移
+
+- 使用 Flask-Migrate 管理迁移脚本
+- 每次模型变更后执行 `flask db migrate -m "描述"` 生成迁移
+- 迁移文件必须提交到版本控制
+
+# 查询规范
+
+- 复杂查询封装在 service 层或 model 的类方法中
+- 分页使用 `query.paginate()`，禁止 `query.all()` 无限制查询
+- 批量操作使用 `db.session.bulk_save_objects()` 或 `bulk_insert_mappings()`

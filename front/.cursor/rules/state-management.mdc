@@ -1,0 +1,51 @@
+---
+description: Pinia 状态管理规范
+globs: "**/stores/**/*.js"
+alwaysApply: false
+---
+
+# Store 定义
+
+使用 Pinia 的 Setup Store 风格（与 Composition API 一致）：
+
+```javascript
+// src/stores/user.js
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+import { getUserInfo } from '@/api/user'
+
+export const useUserStore = defineStore('user', () => {
+  const userInfo = ref(null)
+  const token = ref(localStorage.getItem('token') || '')
+
+  const isLoggedIn = computed(() => !!token.value)
+  const userName = computed(() => userInfo.value?.username || '')
+
+  const setToken = (val) => {
+    token.value = val
+    localStorage.setItem('token', val)
+  }
+
+  const fetchUserInfo = async () => {
+    const res = await getUserInfo()
+    userInfo.value = res.data
+  }
+
+  const logout = () => {
+    token.value = ''
+    userInfo.value = null
+    localStorage.removeItem('token')
+  }
+
+  return { userInfo, token, isLoggedIn, userName, setToken, fetchUserInfo, logout }
+})
+```
+
+# Store 规范要点
+
+- 每个 store 对应一个业务领域，文件名与 store 名一致
+- Store 命名：`use` + 模块名 + `Store`，如 `useUserStore`
+- 只在需要跨组件共享的状态才用 store，组件内部状态用 `ref`
+- 异步操作（API 调用）放在 store 的 action 中
+- 持久化数据（如 token）在 store 中同步到 localStorage
+- 禁止在 store 中直接操作 DOM 或路由

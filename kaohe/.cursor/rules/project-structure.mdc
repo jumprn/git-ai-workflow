@@ -1,0 +1,51 @@
+---
+description: Flask后端项目结构与通用开发规范
+alwaysApply: true
+---
+
+# 项目结构
+
+```
+kaohe/
+├── app/
+│   ├── __init__.py          # Flask app 工厂函数
+│   ├── config.py            # 配置类（开发/测试/生产）
+│   ├── extensions.py        # 扩展初始化（db, migrate, jwt 等）
+│   ├── models/              # SQLAlchemy 模型
+│   ├── api/                 # API 蓝图
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   └── ...
+│   ├── services/            # 业务逻辑层
+│   ├── schemas/             # 序列化/反序列化（Marshmallow）
+│   ├── utils/               # 工具函数
+│   └── errors/              # 统一异常与错误处理
+├── migrations/              # Flask-Migrate 数据库迁移
+├── tests/                   # 测试目录
+├── requirements.txt
+├── .env                     # 环境变量（不提交到 git）
+├── .flaskenv
+└── run.py                   # 启动入口
+```
+
+# 通用规范
+
+- Python 版本：3.10+
+- 使用 Application Factory 模式创建 Flask 应用
+- 配置通过环境变量 + config 类管理，禁止硬编码密钥和连接串
+- 所有第三方扩展在 `extensions.py` 中统一初始化
+- 业务逻辑放在 `services/` 层，路由处理函数保持轻薄
+- `.env` 文件不提交版本控制，提供 `.env.example` 作为模板
+
+# 命名规范
+
+- 文件/模块名：`snake_case`
+- 类名：`PascalCase`
+- 函数/变量：`snake_case`
+- 常量：`UPPER_SNAKE_CASE`
+- 蓝图名与文件名一致，如 `auth.py` 中蓝图命名为 `auth_bp`
+
+# 依赖管理
+
+- 使用 `requirements.txt` 锁定版本
+- 核心依赖：Flask, Flask-SQLAlchemy, Flask-Migrate, Flask-JWT-Extended, Flask-CORS, PyMySQL, marshmallow

@@ -1,0 +1,49 @@
+---
+description: Python 代码风格与质量规范
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# 代码风格
+
+- 遵循 PEP 8 规范
+- 缩进使用 4 个空格，禁止 Tab
+- 单行不超过 120 个字符
+- 导入顺序：标准库 → 第三方库 → 本地模块，各组之间空一行
+
+```python
+import os
+from datetime import datetime
+
+from flask import Flask, jsonify
+from flask_sqlalchemy import SQLAlchemy
+
+from app.utils.response import success
+```
+
+# 函数与类
+
+- 函数体不超过 50 行，过长则拆分
+- 每个函数只做一件事
+- 公开函数必须写 docstring，说明参数和返回值
+- 类型标注推荐使用（Python 3.10+ 语法）
+
+```python
+def get_user_by_id(user_id: int) -> dict | None:
+    """根据 ID 查询用户"""
+    user = User.query.get(user_id)
+    return user.to_dict() if user else None
+```
+
+# 安全规范
+
+- 密码使用 `werkzeug.security.generate_password_hash` 加密存储
+- JWT token 设置合理过期时间
+- 防止 SQL 注入：使用 ORM 查询，禁止拼接原始 SQL
+- 接口做权限校验，敏感操作需要认证
+
+# 测试规范
+
+- 测试文件放在 `tests/` 目录，命名为 `test_*.py`
+- 使用 pytest 作为测试框架
+- 关键业务逻辑必须有单元测试覆盖

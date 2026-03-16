@@ -1,0 +1,66 @@
+---
+description: Vue 3 组件开发规范
+globs: "**/*.vue"
+alwaysApply: false
+---
+
+# 组件模板
+
+统一使用 `<script setup>` + Composition API：
+
+```vue
+<template>
+  <div class="user-list">
+    <a-table :data-source="userList" :columns="columns" :loading="loading" />
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { getUserList } from '@/api/user'
+
+const userList = ref([])
+const loading = ref(false)
+
+const columns = [
+  { title: '用户名', dataIndex: 'username', key: 'username' },
+  { title: '操作', key: 'action', slots: { customRender: 'action' } }
+]
+
+const fetchUsers = async () => {
+  loading.value = true
+  try {
+    const res = await getUserList()
+    userList.value = res.data
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(fetchUsers)
+</script>
+
+<style scoped>
+.user-list {
+  padding: 16px;
+}
+</style>
+```
+
+# 组件规范要点
+
+- 模板中禁止复杂表达式，抽取为 computed 或方法
+- Props 必须声明类型和默认值：`defineProps({ title: { type: String, default: '' } })`
+- 事件使用 `defineEmits` 显式声明
+- 单个组件文件不超过 300 行，过长则拆分子组件
+- 组件顺序：`<template>` → `<script setup>` → `<style scoped>`
+- 始终使用 `scoped` 样式，避免全局污染
+- 公共组件放 `components/`，页面专属组件放对应 `views/` 子目录
+
+# Ant Design Vue 使用规范
+
+- 全局按需引入，在 `main.js` 中注册常用组件
+- 表单使用 `a-form` + `rules` 做校验，禁止手动校验
+- 表格使用 `a-table`，分页参数与后端对齐
+- 消息提示统一用 `message.success()` / `message.error()`
+- 弹窗确认用 `Modal.confirm()`
