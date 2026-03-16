@@ -1,0 +1,23 @@
+kaohe/app/services/scan_service.py
+  62d75dc8e4254ef2 244-252
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.12",
+  "base_commit_sha": "2b8e7b4483f1fb5d8a24359a123e2cfdc18521dd",
+  "prompts": {
+    "62d75dc8e4254ef2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8d831098-ab3c-42b2-86e8-ad668c632285",
+        "model": "default"
+      },
+      "human_author": "jumprn <2451744398@qq.com>",
+      "messages": [],
+      "total_additions": 416,
+      "total_deletions": 407,
+      "accepted_lines": 244,
+      "overriden_lines": 0
+    }
+  }
+}
