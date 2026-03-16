@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.12",
+  "base_commit_sha": "a65cabef1c77d9f33fb0cfe43f9b894adcfcc8ef",
+  "prompts": {
+    "62d75dc8e4254ef2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "8d831098-ab3c-42b2-86e8-ad668c632285",
+        "model": "default"
+      },
+      "human_author": "jumprn <2451744398@qq.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 508,
+      "overriden_lines": 0
+    }
+  }
+}
