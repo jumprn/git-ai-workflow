@@ -241,6 +241,15 @@ def _aggregate_prompt_sessions(project_id: int, commit_sha: str,
         if not prompt_id:
             continue
 
+        # Avoid violating unique constraint uq_project_prompt (project_id, prompt_id)
+        # by skipping sessions that已经存在于当前项目。
+        existing = AIPromptSession.query.filter_by(
+            project_id=project_id,
+            prompt_id=prompt_id,
+        ).first()
+        if existing:
+            continue
+
         tool = p.get('tool', '')
         model = p.get('model', '')
         accepted = p.get('accepted_lines') or 0
