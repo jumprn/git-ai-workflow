@@ -1,0 +1,23 @@
+poem.txt
+  4c05ccccbf97c4c8 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.17",
+  "base_commit_sha": "ca3a5248a921319e14935b98480756397d137ae4",
+  "prompts": {
+    "4c05ccccbf97c4c8": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "0cad9018-f67e-40a8-83e4-c3b7023542b8",
+        "model": "default"
+      },
+      "human_author": "jumprn <2451744398@qq.com>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 0,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
